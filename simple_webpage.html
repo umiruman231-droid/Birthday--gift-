@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Simple HTML File — Interactive Starter</title>
+  <style>
+    :root{--accent:#2563eb;--card:#fff;--bg:#f3f4f6}
+    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial}
+    body{display:grid;place-items:center;background:linear-gradient(180deg,var(--bg),#e9eef8)}
+    .container{width:min(920px,94%);background:var(--card);border-radius:14px;box-shadow:0 10px 30px rgba(16,24,40,0.08);overflow:hidden}
+    header{padding:24px 28px;border-bottom:1px solid #eef2ff;display:flex;align-items:center;gap:16px}
+    .logo{width:48px;height:48px;background:var(--accent);border-radius:10px;display:grid;place-items:center;color:#fff;font-weight:700}
+    main{padding:28px;display:grid;gap:18px}
+    .grid{display:grid;grid-template-columns:1fr 280px;gap:18px}
+    .card{padding:16px;border-radius:10px;background:#fbfdff;border:1px solid #f1f5f9}
+    button{background:var(--accent);color:white;border:0;padding:10px 14px;border-radius:8px;cursor:pointer}
+    input[type=text]{width:100%;padding:10px;border-radius:8px;border:1px solid #e6eef8}
+    footer{padding:14px 28px;border-top:1px solid #eef2ff;font-size:13px;color:#374151}
+    @media (max-width:820px){.grid{grid-template-columns:1fr} .logo{width:40px;height:40px}}
+  </style>
+</head>
+<body>
+  <div class="container" role="main">
+    <header>
+      <div class="logo">S</div>
+      <div>
+        <h1 style="margin:0;font-size:18px;">Simple HTML Starter</h1>
+        <p style="margin:2px 0 0;color:#6b7280;font-size:13px">A single-file template to build from</p>
+      </div>
+    </header>
+
+    <main>
+      <section class="grid">
+        <div>
+          <div class="card">
+            <h2 style="margin-top:0">Live Preview</h2>
+            <p style="margin:6px 0 12px;color:#4b5563">Type text in the input to create a live list item. Click the button to add it.</p>
+
+            <label style="display:block;margin-bottom:8px;font-size:13px;color:#374151">New item</label>
+            <div style="display:flex;gap:8px">
+              <input id="itemInput" type="text" placeholder="Write something..." />
+              <button id="addBtn">Add</button>
+            </div>
+
+            <ul id="items" style="margin-top:14px;padding-left:18px"></ul>
+          </div>
+
+          <div class="card" style="margin-top:12px">
+            <h3 style="margin:0 0 8px">About this file</h3>
+            <p style="margin:0;color:#374151;font-size:14px">This is a minimal, accessible single-file HTML template with modern CSS and a tiny bit of JavaScript to get you started.</p>
+          </div>
+        </div>
+
+        <aside>
+          <div class="card">
+            <h3 style="margin-top:0">Quick actions</h3>
+            <button id="clearBtn" style="width:100%;margin-top:10px">Clear list</button>
+            <button id="exportBtn" style="width:100%;margin-top:8px;background:#10b981">Export JSON</button>
+            <pre id="jsonOut" style="margin-top:12px;background:#f8fafc;padding:8px;border-radius:8px;white-space:pre-wrap;word-break:break-word;max-height:200px;overflow:auto">[]</pre>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <footer>
+      Tip: open this file in a browser and edit it. All code lives in this single file for easy sharing.
+    </footer>
+  </div>
+
+  <script>
+    // Simple interactive behaviour — no frameworks needed
+    const input = document.getElementById('itemInput');
+    const addBtn = document.getElementById('addBtn');
+    const itemsEl = document.getElementById('items');
+    const clearBtn = document.getElementById('clearBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    const jsonOut = document.getElementById('jsonOut');
+
+    let items = [];
+
+    function render(){
+      itemsEl.innerHTML = '';
+      items.forEach((it,i)=>{
+        const li = document.createElement('li');
+        li.textContent = it;
+        li.style.margin = '6px 0';
+        li.style.cursor = 'pointer';
+        li.title = 'Click to remove';
+        li.addEventListener('click', ()=>{ items.splice(i,1); render(); updateJSON(); });
+        itemsEl.appendChild(li);
+      });
+    }
+
+    function updateJSON(){
+      jsonOut.textContent = JSON.stringify(items, null, 2);
+    }
+
+    addBtn.addEventListener('click', ()=>{
+      const val = input.value.trim();
+      if(!val) return; items.push(val); input.value=''; render(); updateJSON();
+    });
+
+    input.addEventListener('keydown', e=>{ if(e.key==='Enter') addBtn.click(); });
+
+    clearBtn.addEventListener('click', ()=>{ items = []; render(); updateJSON(); });
+
+    exportBtn.addEventListener('click', ()=>{
+      const blob = new Blob([JSON.stringify(items, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'items.json';
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    });
+
+    // initial render
+    render(); updateJSON();
+  </script>
+</body>
+</html>
